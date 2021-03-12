@@ -1,4 +1,5 @@
 <template>
+<div class="terminal-wrapper">
   <div class="terminal-shell">
     <div class="terminal-overlay"></div>
     <div class="terminal-contents has-cursor" ref="terminalElement">
@@ -7,32 +8,26 @@
         v-for="message in messages"
         :key="message.id"
       >
-        <div v-if="message.html" class="terminal-response" v-html="message.html">
-        </div>
+        <div
+          v-if="message.html"
+          class="terminal-response"
+          v-html="message.html"
+        ></div>
         <div v-if="message.action !== undefined" class="terminal-action">
           {{ prompt }}{{ message.action }}
         </div>
       </div>
     </div>
   </div>
+  </div>
 </template>
 
 <script>
-import { onMounted, ref, nextTick } from "vue";
-import { writeMarkdownToTerminal } from "@/commands/terminalWriter";
-
-function isPrintableKeyCode(keyCode) {
-  let valid =
-    (keyCode > 47 && keyCode < 58) || // number keys
-    keyCode == 32 || // spacebar
-    // keyCode == 13 || //return key(s) (if you want to allow carriage returns)
-    (keyCode > 64 && keyCode < 91) || // letter keys
-    (keyCode > 95 && keyCode < 112) || // numpad keys
-    (keyCode > 185 && keyCode < 193) || // ;=,-./` (in order)
-    (keyCode > 218 && keyCode < 223); // [\]' (in order)
-
-  return valid;
-}
+import { onMounted, ref, nextTick, reactive, onUnmounted } from "vue";
+import {
+  writeMarkdownToTerminal,
+  isPrintableKeyCode,
+} from "@/commands/terminalWriter";
 
 //    ######   #######  ##     ## ##     ##    ###    ##    ## ########   ######
 //   ##    ## ##     ## ###   ### ###   ###   ## ##   ###   ## ##     ## ##    ##
@@ -64,7 +59,7 @@ function getEmail() {
 }
 
 function getMobile() {
-  let response = ["+44", "7", "81", "7", " ", "89", "0", "98", "4"];
+  let response = ["+44", "7", "81", "7", "89", "0", "98", "4"];
   return response.join("");
 }
 
@@ -117,8 +112,8 @@ function runCommand(command) {
 
 function runAbout() {
   let response = [
-    "<div style=\"text-align:center\">I'm Samuel Gillespie!",
-    "<img src=\"/images/photo.png\" alt=\"It's ME!\">",
+    '<div style="text-align:center">I\'m Samuel Gillespie!',
+    '<img src="/images/photo.png" alt="It\'s ME!">',
     "I'm a software engineer and quantitative analyst.</div>",
   ];
   return response.join("\n");
@@ -189,12 +184,14 @@ function runSkills() {
     "I am proficient in the following areas:",
     "",
     "    [",
-    "        'Python', 'JavaScript', 'Node.JS',",
-    "         'Vue.JS', 'Java', 'C#', 'git'",
+    "        Python,",
+    "        JavaScript,",
+    "        Node.JS,",
+    "        Vue.JS,",
+    "        Java,",
+    "        C#,",
+    "        git",
     "    ]",
-    "",
-    "For more information, use the command:",
-    "  > skills <skillName>",
   ];
   return response.join("\n");
 }
@@ -207,8 +204,8 @@ function runContact() {
     `  - <a href="tel:${getMobile()}">Mobile: ${getMobile()}</a>`,
     "",
     "Alternatively, contact me via social media:",
-    "  - <a href=\"https://www.linkedin.com/in/samuel-gillespie\">LinkedIn</a>",
-    "  - <a href=\"https://github.com/Pluckerpluck\">GitHub</a>",
+    '  - <a href="https://www.linkedin.com/in/samuel-gillespie">LinkedIn</a>',
+    '  - <a href="https://github.com/Pluckerpluck">GitHub</a>',
   ];
   return response.join("\n");
 }
@@ -224,10 +221,9 @@ function runContact() {
 export default {
   setup() {
     const terminalWelcomeText = "Welcome! Type `help` for more information.";
-    const terminalContent = ref(terminalWelcomeText);
     const terminalElement = ref(null);
     const prompt = ref("> ");
-    let messages = ref([
+    let messages = reactive([
       {
         html: terminalWelcomeText,
       },
@@ -238,10 +234,10 @@ export default {
 
     // Shortcut to the last message
     const lastMessage = () => {
-      if (messages.value.length == 0) {
+      if (messages.length == 0) {
         return {};
       } else {
-        return messages.value[messages.value.length - 1];
+        return messages[messages.length - 1];
       }
     };
     const updateScroll = () => {
@@ -253,7 +249,7 @@ export default {
 
     const updateTerminal = (message, complete) => {
       if (lastMessage().html == undefined) {
-        messages.value.push({
+        messages.push({
           html: "",
         });
       }
@@ -261,16 +257,13 @@ export default {
       lastMessage().html = message;
 
       if (complete) {
-        messages.value.push({
+        messages.push({
           action: "",
         });
       }
 
       updateScroll();
     };
-
-    // This command gets filled by the user
-    let command = "";
 
     //    ######     ###    ########  ######## ##     ## ########  ########
     //   ##    ##   ## ##   ##     ##    ##    ##     ## ##     ## ##
@@ -282,95 +275,46 @@ export default {
 
     let keyDown = (e) => {
       // This makes sure we're still mounted
+      // TODO: Properly unbind this
       if (terminalElement.value == null) return;
+
+      // Start by disabling the default action is we capture it
+      if (isPrintableKeyCode(e.keyCode) || e.keyCode == 8 || e.keyCode == 13) {
+        e.preventDefault();
+      }
 
       if (lastMessage().action != undefined) {
         // The enter key has been pressed
         if (e.keyCode == 13) {
           // Run my command and print the output!
-          let response = runCommand(command);
-
-          // Clear the command to prepare for the next one
-          command = "";
+          let response = runCommand(lastMessage().action);
 
           // Special clear command
           if (response == null) {
-            // Remove all existing messages
-            messages.value = [];
-
-            // Clear and re-write to terminal
-            terminalContent.value = "";
-            writeMarkdownToTerminal(terminalWelcomeText, updateTerminal);
-            //writeToTerminal(terminalWelcomeText);
-
-            return;
+            // Remove all existing messages and prep the welcome msg
+            messages.length = 0;
+            response = terminalWelcomeText;
           }
 
+          // Write the latest response to the terminal
           writeMarkdownToTerminal(response, updateTerminal);
-
-          updateScroll();
         }
 
         // Backspace is pressed
         else if (e.keyCode == 8) {
+          // Only delete if we have something to delete
           if (lastMessage().action) {
-            let typedAction = lastMessage().action;
-            lastMessage().action = typedAction.slice(0, typedAction.length - 1);
+            lastMessage().action = lastMessage().action.slice(0, -1);
           }
-
-          // Only allow backspaces if we have a command being typed
-          if (command.length > 0) {
-            command = command.slice(0, command.length - 1);
-            terminalContent.value = terminalContent.value.slice(
-              0,
-              terminalContent.value.length - 1
-            );
-          }
-
-          // Get the latest position before scrolling to the bottom
-          nextTick(() => {
-            terminalElement.value.scrollTo(
-              0,
-              terminalElement.value.scrollHeight
-            );
-          });
-
-          // Don't navigate away because of the default functionality!
-          e.preventDefault();
         }
 
         // See if we can print it, otherwise do nothing
         else if (isPrintableKeyCode(e.keyCode)) {
-          // Add the key to the terminal window
-          terminalContent.value += e.key;
+          // Append the key onto the latest action
+          lastMessage().action += e.key;
 
-          let typedAction = lastMessage().action;
-
-          typedAction = typedAction + e.key;
-          lastMessage().action = typedAction;
-
-          // Add the key to the active command
-          command += e.key;
-
-          // Get the latest position before scrolling to the bottom
-          nextTick(() => {
-            terminalElement.value.scrollTo(
-              0,
-              terminalElement.value.scrollHeight
-            );
-          });
-
-          // Stop the keys propogating to anywhere else on the page
-          e.preventDefault();
-        }
-      } else {
-        // Even if typing is disabled, captured the key presses
-        if (
-          isPrintableKeyCode(e.keyCode) ||
-          e.keyCode == 8 ||
-          e.keyCode == 13
-        ) {
-          e.preventDefault();
+          // Incase we drop onto the next line
+          updateScroll();
         }
       }
     };
@@ -380,8 +324,12 @@ export default {
       window.addEventListener("keydown", keyDown);
     });
 
+    // Cleanup if needed
+    onUnmounted(() => {
+      window.removeEventListener("keydown", keyDown);
+    });
+
     return {
-      terminalContent,
       terminalElement,
       messages,
       prompt,
@@ -406,40 +354,51 @@ export default {
 </style>
 
 <style scoped lang="scss">
+.terminal-wrapper {
+  // Limits the width based on the height
+  max-width: calc(100vh * 1.33 - 28rem);
+  margin: auto;
+}
+
 .terminal-shell {
   position: relative;
   background-color: black;
   background-image: radial-gradient(rgba(0, 150, 0, 0.75), black 120%);
-  margin: 0;
-  overflow: hidden;
+  margin-top: 3vh;
   color: white;
   font: 1.3rem Inconsolata, monospace;
   text-shadow: 0 0 5px #c8c8c8;
-  height: 70vh;
-  padding: 1.5rem;
+  width: 100%;
+  padding-top: 75%;
 }
 
 .terminal-contents {
-  height: 100%;
-  overflow: auto;
+  overflow-y: scroll;
+  position: absolute;
+  top: 4%;
+  right: 4%;
+  left: 9%;
+  bottom: 6%;
 }
 
 .terminal-overlay {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  padding: 1rem;
+  top: -13%;
+  left: -13%;
+  right: -13%;
+  bottom: -13%;
   overflow: hidden;
-  background: repeating-linear-gradient(
-    0deg,
-    rgba(black, 0.15),
-    rgba(black, 0.15) 1px,
-    transparent 1px,
-    transparent 2px
-  );
+  background: url("~@/assets/terminal.png");
+    // repeating-linear-gradient(
+    //   0deg,
+    //   rgba(black, 0.15),
+    //   rgba(black, 0.15) 1px,
+    //   transparent 1px,
+    //   transparent 2px
+    // );
+  background-size: 100% 100%;
   pointer-events: none;
+  z-index: 200;
 }
 
 .terminal-message {
@@ -459,44 +418,8 @@ export default {
   }
 }
 
-.terminal {
-  position: relative;
-  background-color: black;
-  background-image: radial-gradient(rgba(0, 150, 0, 0.75), black 120%);
-  margin: 0;
-  overflow: hidden;
-  color: white;
-  font: 1.3rem Inconsolata, monospace;
-  text-shadow: 0 0 5px #c8c8c8;
-  &::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: repeating-linear-gradient(
-      0deg,
-      rgba(black, 0.15),
-      rgba(black, 0.15) 1px,
-      transparent 1px,
-      transparent 2px
-    );
-    pointer-events: none;
-  }
-}
 ::selection {
   background: #0080ff;
   text-shadow: none;
-}
-
-.output {
-  padding-bottom: 1rem;
-}
-
-pre {
-  background-color: transparent;
-  margin: 0;
-  height: 70vh;
 }
 </style>

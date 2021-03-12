@@ -1,6 +1,6 @@
 <template>
   <section class="section">
-    <div class="container is-max-desktop">
+    <div class="container">
       <section class="header">
         <h1 class="title">
           {{ title }}
@@ -76,10 +76,8 @@ body {
 
 .title {
   text-align: left;
-  width: 75%;
-  margin: auto;
   font-weight: 400;
-  padding-left: 1rem;
+  margin-left: calc(50% - 20rem);
 }
 
 .cursor {
