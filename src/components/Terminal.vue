@@ -1,11 +1,25 @@
 <template>
-  <div class="terminal">
-    <pre ref="terminalElement"><output class="output">{{terminalContent}}{{cursor}}</output></pre>
+  <div class="terminal-shell">
+    <div class="terminal-overlay"></div>
+    <div class="terminal-contents has-cursor" ref="terminalElement">
+      <div
+        class="terminal-message"
+        v-for="message in messages"
+        :key="message.id"
+      >
+        <div v-if="message.html" class="terminal-response" v-html="message.html">
+        </div>
+        <div v-if="message.action !== undefined" class="terminal-action">
+          {{ prompt }}{{ message.action }}
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
 import { onMounted, ref, nextTick } from "vue";
+import { writeMarkdownToTerminal } from "@/commands/terminalWriter";
 
 function isPrintableKeyCode(keyCode) {
   let valid =
@@ -44,68 +58,70 @@ function getEmail() {
     "il",
     ".",
     "c",
-    "om"
-  ]
-  return response.join("")
+    "om",
+  ];
+  return response.join("");
 }
 
 function getMobile() {
-  let response = [
-    "+44",
-    "7",
-    "81",
-    "7",
-    " ",
-    "89",
-    "0",
-    "98",
-    "4",
-  ]
-  return response.join("")
+  let response = ["+44", "7", "81", "7", " ", "89", "0", "98", "4"];
+  return response.join("");
 }
 
 function runCommand(command) {
+  let splitCommand = command.split(" ");
+  let baseCommand = splitCommand[0].toLowerCase();
 
-  let splitCommand = command.split(" ")
-  let baseCommand = splitCommand[0].toLowerCase()
+  let commandArgs = splitCommand.slice(1);
+  let response = [];
 
-  let commandArgs = splitCommand.slice(1)
-  let response = ["\n"]
-
-  switch (baseCommand){
+  switch (baseCommand) {
     case "help":
-      response.push("Available Commands:")
-      response.push("  - about        ->  Learn a little bit about me")
-      response.push("  - experience   ->  Learn about my work experience")
-      response.push("  - education    ->  Learn about what I studied")
-      response.push("  - projects     ->  Learn about some of my projects")
-      response.push("  - skills       ->  Learn about my skills")
-      response.push("  - certificates ->  My licenses & certifications")
-      response.push("  - contact      ->  Contact me!")
-      response.push("  - clear        ->  Clears the terminal")
-      break
+      response.push("Available Commands:");
+      response.push("  - about        ->  Learn a little bit about me");
+      response.push("  - experience   ->  Learn about my work experience");
+      response.push("  - education    ->  Learn about what I studied");
+      response.push("  - projects     ->  Learn about some of my projects");
+      response.push("  - skills       ->  Learn about my skills");
+      response.push("  - certificates ->  My licenses & certifications");
+      response.push("  - contact      ->  Contact me!");
+      response.push("  - clear        ->  Clears the terminal");
+      break;
     case "skills":
-      response.push(runSkills(commandArgs))
-      break
+      response.push(runSkills(commandArgs));
+      break;
     case "education":
-      response.push(runEducation(commandArgs))
-      break
+      response.push(runEducation(commandArgs));
+      break;
     case "contact":
-      response.push(runContact(commandArgs))
-      break
+      response.push(runContact(commandArgs));
+      break;
+    case "about":
+      response.push(runAbout(commandArgs));
+      break;
     case "":
       // In this case, we don't need a new line to start
-      response = [""]
-      break
+      response = [""];
+      break;
     case "clear":
       // Special case, return null to indicate clear
-      return null
+      return null;
     default:
-      response.push("Unrecognized command. Type `help` for a list of commands.")
+      response.push(
+        "Unrecognized command. Type `help` for a list of commands."
+      );
   }
 
-  response.push("\n> ")
-  return response.join("\n")
+  return response.join("\n");
+}
+
+function runAbout() {
+  let response = [
+    "<div style=\"text-align:center\">I'm Samuel Gillespie!",
+    "<img src=\"/images/photo.png\" alt=\"It's ME!\">",
+    "I'm a software engineer and quantitative analyst.</div>",
+  ];
+  return response.join("\n");
 }
 
 function runEducation() {
@@ -163,9 +179,9 @@ function runEducation() {
     "",
     "GCSEs:",
     "  13 GCSEs at grade A or A*,",
-    "  including Maths and English"
-  ]
-  return response.join("\n")
+    "  including Maths and English",
+  ];
+  return response.join("\n");
 }
 
 function runSkills() {
@@ -178,25 +194,24 @@ function runSkills() {
     "    ]",
     "",
     "For more information, use the command:",
-    "  > skills <skillName>"
-  ]
-  return response.join("\n")
+    "  > skills <skillName>",
+  ];
+  return response.join("\n");
 }
 
 function runContact() {
   let response = [
     "You can contact me using one of the following methods:",
     "",
-    `  - [Email: ${getEmail()}](mailto:${getEmail()})`,
-    `  - Mobile: ${getMobile()}`,
+    `  - <a href="mailto:${getEmail()}">Email: ${getEmail()}</a>`,
+    `  - <a href="tel:${getMobile()}">Mobile: ${getMobile()}</a>`,
     "",
     "Alternatively, contact me via social media:",
-    "  - [LinkedIn](https://www.linkedin.com/in/samuel-gillespie)",
-    "  - [GitHub](https://github.com/Pluckerpluck)",
-  ]
-  return response.join("\n")
+    "  - <a href=\"https://www.linkedin.com/in/samuel-gillespie\">LinkedIn</a>",
+    "  - <a href=\"https://github.com/Pluckerpluck\">GitHub</a>",
+  ];
+  return response.join("\n");
 }
-
 
 //    ######  ######## ######## ##     ## ########
 //   ##    ## ##          ##    ##     ## ##     ##
@@ -208,64 +223,54 @@ function runContact() {
 
 export default {
   setup() {
-    const terminalWelcomeText = "Welcome! Type `help` for more information.\n\n> "
+    const terminalWelcomeText = "Welcome! Type `help` for more information.";
     const terminalContent = ref(terminalWelcomeText);
-    const canType = ref(true);
     const terminalElement = ref(null);
-    const terminalCursorActive = ref(true)
-    const cursor = ref("")
+    const prompt = ref("> ");
+    let messages = ref([
+      {
+        html: terminalWelcomeText,
+      },
+      {
+        action: "",
+      },
+    ]);
 
-    setInterval(() => {
-      if (!terminalCursorActive.value) return
-
-      if (cursor.value.length == 1) {
-        cursor.value = ""
+    // Shortcut to the last message
+    const lastMessage = () => {
+      if (messages.value.length == 0) {
+        return {};
       } else {
-        cursor.value = "█"
+        return messages.value[messages.value.length - 1];
       }
-    }, 500)
+    };
+    const updateScroll = () => {
+      // Wait until the character prints to scroll to the bottom
+      nextTick(() => {
+        terminalElement.value.scrollTo(0, terminalElement.value.scrollHeight);
+      });
+    };
+
+    const updateTerminal = (message, complete) => {
+      if (lastMessage().html == undefined) {
+        messages.value.push({
+          html: "",
+        });
+      }
+
+      lastMessage().html = message;
+
+      if (complete) {
+        messages.value.push({
+          action: "",
+        });
+      }
+
+      updateScroll();
+    };
 
     // This command gets filled by the user
-    let command = ""
-
-
-
-    let writeToTerminal = (text) => {
-      // Disable typing from the user
-      canType.value = false
-      terminalCursorActive.value = false
-      cursor.value = "█"
-
-      // Convert the command into a stack
-      let stack = text.split("")
-      stack = stack.reverse()
-
-      let typer = setInterval(function(){
-
-          // We need this look becuase setInterval has a min interval
-          for (let i = 0; i < 2; i++) {
-            let letter = stack.pop()
-
-            // We're done, exit and re-enable typing!
-            if (letter == undefined) {
-              clearInterval(typer)
-              canType.value = true
-              terminalCursorActive.value = true
-              return
-            }
-
-            // Add the letter
-            terminalContent.value += letter
-          }
-
-
-          //Wait until the character prints to scroll to the bottom
-          nextTick(() => {
-            terminalElement.value.scrollTo(0, terminalElement.value.scrollHeight);
-          })
-      },5);
-    }
-
+    let command = "";
 
     //    ######     ###    ########  ######## ##     ## ########  ########
     //   ##    ##   ## ##   ##     ##    ##    ##     ## ##     ## ##
@@ -276,49 +281,59 @@ export default {
     //    ######  ##     ## ##           ##     #######  ##     ## ########
 
     let keyDown = (e) => {
-
       // This makes sure we're still mounted
-      if (terminalElement.value == null) return
+      if (terminalElement.value == null) return;
 
-      if (canType.value) {
-
+      if (lastMessage().action != undefined) {
         // The enter key has been pressed
         if (e.keyCode == 13) {
-
           // Run my command and print the output!
-          let response = runCommand(command)
+          let response = runCommand(command);
 
           // Clear the command to prepare for the next one
-          command = ""
+          command = "";
 
           // Special clear command
           if (response == null) {
-            terminalContent.value = ""
-            terminalElement.value.scrollTo(0, 0)
-            writeToTerminal(terminalWelcomeText)
-            return
+            // Remove all existing messages
+            messages.value = [];
+
+            // Clear and re-write to terminal
+            terminalContent.value = "";
+            writeMarkdownToTerminal(terminalWelcomeText, updateTerminal);
+            //writeToTerminal(terminalWelcomeText);
+
+            return;
           }
 
-          writeToTerminal(response)
+          writeMarkdownToTerminal(response, updateTerminal);
 
-          // Wait until the character prints to scroll to the bottom
-          nextTick(() => {
-            terminalElement.value.scrollTo(0, terminalElement.value.scrollHeight);
-          })
+          updateScroll();
         }
 
         // Backspace is pressed
         else if (e.keyCode == 8) {
+          if (lastMessage().action) {
+            let typedAction = lastMessage().action;
+            lastMessage().action = typedAction.slice(0, typedAction.length - 1);
+          }
+
           // Only allow backspaces if we have a command being typed
           if (command.length > 0) {
-            command = command.slice(0, command.length - 1)
-            terminalContent.value = terminalContent.value.slice(0, terminalContent.value.length - 1)
+            command = command.slice(0, command.length - 1);
+            terminalContent.value = terminalContent.value.slice(
+              0,
+              terminalContent.value.length - 1
+            );
           }
 
           // Get the latest position before scrolling to the bottom
           nextTick(() => {
-            terminalElement.value.scrollTo(0, terminalElement.value.scrollHeight);
-          })
+            terminalElement.value.scrollTo(
+              0,
+              terminalElement.value.scrollHeight
+            );
+          });
 
           // Don't navigate away because of the default functionality!
           e.preventDefault();
@@ -329,25 +344,31 @@ export default {
           // Add the key to the terminal window
           terminalContent.value += e.key;
 
+          let typedAction = lastMessage().action;
+
+          typedAction = typedAction + e.key;
+          lastMessage().action = typedAction;
+
           // Add the key to the active command
           command += e.key;
 
           // Get the latest position before scrolling to the bottom
           nextTick(() => {
-            terminalElement.value.scrollTo(0, terminalElement.value.scrollHeight);
-          })
+            terminalElement.value.scrollTo(
+              0,
+              terminalElement.value.scrollHeight
+            );
+          });
 
           // Stop the keys propogating to anywhere else on the page
           e.preventDefault();
-
         }
-
       } else {
         // Even if typing is disabled, captured the key presses
         if (
-          isPrintableKeyCode(e.keyCode)
-          || e.keyCode == 8
-          || e.keyCode == 13
+          isPrintableKeyCode(e.keyCode) ||
+          e.keyCode == 8 ||
+          e.keyCode == 13
         ) {
           e.preventDefault();
         }
@@ -362,13 +383,82 @@ export default {
     return {
       terminalContent,
       terminalElement,
-      cursor
+      messages,
+      prompt,
     };
   },
 };
 </script>
 
+<style lang="scss">
+.has-cursor .terminal-message {
+  &:last-child .terminal-action::after {
+    content: "█";
+    animation: terminal-caret 1s steps(1) infinite;
+  }
+}
+
+@keyframes terminal-caret {
+  50% {
+    opacity: 0;
+  }
+}
+</style>
+
 <style scoped lang="scss">
+.terminal-shell {
+  position: relative;
+  background-color: black;
+  background-image: radial-gradient(rgba(0, 150, 0, 0.75), black 120%);
+  margin: 0;
+  overflow: hidden;
+  color: white;
+  font: 1.3rem Inconsolata, monospace;
+  text-shadow: 0 0 5px #c8c8c8;
+  height: 70vh;
+  padding: 1.5rem;
+}
+
+.terminal-contents {
+  height: 100%;
+  overflow: auto;
+}
+
+.terminal-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 1rem;
+  overflow: hidden;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(black, 0.15),
+    rgba(black, 0.15) 1px,
+    transparent 1px,
+    transparent 2px
+  );
+  pointer-events: none;
+}
+
+.terminal-message {
+  font: 1.3rem Inconsolata, monospace;
+  color: #0fb300;
+  font-size: 0.875em;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  margin-top: 1rem;
+
+  ::v-deep(a) {
+    color: #c3f975;
+
+    &:hover {
+      color: white;
+    }
+  }
+}
+
 .terminal {
   position: relative;
   background-color: black;

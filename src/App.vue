@@ -56,7 +56,7 @@ export default {
 <style lang="scss">
 
 // Set all the globa variables
-$scheme-main: #000a14;
+$scheme-main: #111111;
 $text: #0fb300;
 $text-strong: #0fb300;
 $title-size: 4rem;
