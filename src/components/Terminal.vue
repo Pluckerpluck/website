@@ -1,24 +1,24 @@
 <template>
-<div class="terminal-wrapper">
-  <div class="terminal-shell">
-    <div class="terminal-overlay"></div>
-    <div class="terminal-contents has-cursor" ref="terminalElement">
-      <div
-        class="terminal-message"
-        v-for="message in messages"
-        :key="message.id"
-      >
+  <div class="terminal-wrapper">
+    <div class="terminal-shell">
+      <div class="terminal-overlay"></div>
+      <div class="terminal-contents has-cursor" ref="terminalElement">
         <div
-          v-if="message.html"
-          class="terminal-response"
-          v-html="message.html"
-        ></div>
-        <div v-if="message.action !== undefined" class="terminal-action">
-          {{ prompt }}{{ message.action }}
+          class="terminal-message"
+          v-for="message in messages"
+          :key="message.id"
+        >
+          <div
+            v-if="message.html"
+            class="terminal-response"
+            v-html="message.html"
+          ></div>
+          <div v-if="message.action !== undefined" class="terminal-action">
+            {{ prompt }}{{ message.action }}
+          </div>
         </div>
       </div>
     </div>
-  </div>
   </div>
 </template>
 
@@ -377,8 +377,26 @@ export default {
   position: absolute;
   top: 4%;
   right: 4%;
-  left: 9%;
+  left: 7%;
   bottom: 6%;
+  scrollbar-color: #2d4621 rgba(0, 0, 0, 0);
+  scrollbar-width: thin;
+
+  /* width */
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  /* Track */
+  &::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0);
+  }
+
+  /* Handle */
+  &::-webkit-scrollbar-thumb {
+    background: #2d4621;
+    border-radius: 10px;
+  }
 }
 
 .terminal-overlay {
@@ -389,13 +407,13 @@ export default {
   bottom: -13%;
   overflow: hidden;
   background: url("~@/assets/terminal.png");
-    // repeating-linear-gradient(
-    //   0deg,
-    //   rgba(black, 0.15),
-    //   rgba(black, 0.15) 1px,
-    //   transparent 1px,
-    //   transparent 2px
-    // );
+  // repeating-linear-gradient(
+  //   0deg,
+  //   rgba(black, 0.15),
+  //   rgba(black, 0.15) 1px,
+  //   transparent 1px,
+  //   transparent 2px
+  // );
   background-size: 100% 100%;
   pointer-events: none;
   z-index: 200;
