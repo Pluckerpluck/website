@@ -1,9 +1,10 @@
 <template>
   <CVSkill title="Web Development">
-    <ul>
+    <ul  class="list-disc list-inside">
       <li class="">Knowledge of HTML, CSS, PHP and Javascript</li>
-      <li class="">Experience in using online databases such as MySQL, Redis and MongoDB, including utilization of Object-Relational Mapping to improve usability</li>
       <li class="">Experienced in React and Vue JavaScript frameworks</li>
+      <li class="">Familiar with RESTful and GraphQL APIs</li>
+      <li class="">Personally dabbled in Nuxt development for SSR and static site generation</li>
     </ul>
   </CVSkill>
 </template>

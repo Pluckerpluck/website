@@ -12,14 +12,11 @@
           {{ module }}
         </li>
       </ul>
-      <h3 class="font-semibold">Group Industrial Project:</h3>
+      <h3 class="font-semibold mt-4">Group Industrial Project:</h3>
       <p class="text-sm">
         Developed and created, as a team of 6, an apparatus capable of
         measuring thermal conductivity at liquid nitrogen temperatures
-        (-2000C).
-      </p>
-      <p class="text-sm">
-        This project received the Gibbs Prize for Best Group Project
+        (-2000C). This project received the Gibbs Prize for Best Group Project
         Presentation.
       </p>
     </div>
