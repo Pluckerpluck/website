@@ -1,5 +1,5 @@
 <template>
-    <div class="flex flex-col items-center justify-center gap-2">
+    <div class="flex flex-col gap-2 break-inside-avoid-page">
       <div class="flex flex-col items-center justify-center gap-2">
         <p class="font-bold">{{ title }}</p>
       </div>

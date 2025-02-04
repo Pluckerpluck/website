@@ -1,11 +1,17 @@
 <template>
-  <CVSkill title="Programming">
+  <CVSkill title="General Development">
     <ul>
-      <li class="">Strong knowledge in Java, Python, Node.JS</li>
-      <li class="">Experienced in writing well documented, object-oriented software following SOLID principles</li>
-      <li class="">Experienced in using Docker to create easy to use, portable, software services</li>
-      <li class="">Familiar with both Linux and Windows Operating Systems</li>
-      <li class="">Developed a modification for the game Minecraft with other 280,000 total downloads (now maintained by another)</li>
+      <li>
+        Highly proficient in Git source control management, having used both rebase and
+        merge based workflows
+      </li>
+      <li>Experienced in CI/CD pipelines (Bamboo, Jenkins, ArgoCD)</li>
+      <li>Knowledgeable in Docker and Kubernetes</li>
+      <li>Familiar with both Linux and Windows Operating Systems</li>
+      <li>
+        Worked with both SQL (MySQL) and NoSQL databases (primarily Redis, DynamoDB and
+        MongoDB)
+      </li>
     </ul>
   </CVSkill>
 </template>

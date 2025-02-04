@@ -3,7 +3,7 @@
     <div class="flex flex-col items-center justify-center mx-6 gap-6 my-5">
       <div class="flex flex-col items-center justify-center gap-2">
         <img
-          src="/images/profile.webp"
+          src="/images/profile-144.webp"
           alt="Samuel Gillespie"
           class="rounded-full w-36 h-36 object-cover"
         />
@@ -32,6 +32,8 @@
           <li class="text-sm">Docker</li>
           <li class="text-sm">Kubernetes</li>
           <li class="text-sm">AWS</li>
+          <li class="text-sm">GraphQL</li>
+          <li class="text-sm">REST</li>
           <li class="text-sm">Java</li>
           <li class="text-sm">CI/CD</li>
         </ul>

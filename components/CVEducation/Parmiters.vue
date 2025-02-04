@@ -2,7 +2,7 @@
   <CVEducation
     dateRange="Sept 2004 - June 2011"
     location="Parmiter's School, Hertfordshire"
-    degree=""
+    degree="A-Levels & GCSEs"
     result=""
   >
     <div>

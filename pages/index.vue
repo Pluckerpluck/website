@@ -1,18 +1,19 @@
 <template>
   <div>
     <div
-      class="grid grid-cols-1 sm:grid-cols-[320px_1fr] gap-4 text-center max-w-6xl mx-auto"
+      class="grid grid-cols-1 sm:grid-cols-[320px_1fr] gap-4 max-w-6xl mx-auto"
     >
       <CVSidebar />
       <div>
-        <div class="flex flex-col items-center justify-center gap-6 my-5 mx-4">
-          <div class="w-full">
+        <div class="flex flex-col gap-6 my-5 mx-4">
+          <div class="w-full break">
             <SectionHeader title="Experience" />
             <CVExperienceFitch />
             <CVExperienceImagination />
           </div>
           <div class="w-full">
             <SectionHeader title="Skills" />
+            <CVSkillPython />
             <CVSkillProgramming />
             <CVSkillWebDevelopment />
           </div>
@@ -46,7 +47,7 @@ const SectionHeader = defineComponent(
       return h(
         "div",
         {
-          class: "flex items-center justify-center gap-2",
+          class: "flex items-center justify-center gap-2 break-after-avoid-page",
         },
         [
           h("div", {
