@@ -18,13 +18,13 @@
     <div class="mt-2">
       Fully instrumented Datadog-based tracking into the modelling platform, enabling
       comprehensive monitoring, alerting, and performance metrics collection. This
-      integration provided real-time insights into system health and usage patterns,
+      integration provides real-time insights into system health and usage patterns,
       facilitating proactive issue resolution and optimization.
     </div>
     <div class="mt-2">
       Additionally designed and worked in transitioning legacy Excel and VBA cash flow
-      and asset-based models into to Python (with Numpy/SciPy/Pandas) with web-based
-      UIs, significantly enhancing efficiency by leveraging the aforementioned modelling
+      and asset-based models into Python (Numpy/SciPy/Pandas) with web-based UIs,
+      significantly enhancing efficiency by leveraging the aforementioned modelling
       platform and allowing programmatic API access to the models.
     </div>
     <div class="text-gray-600 text-center mt-5 grid grid-cols-2 sm:grid-cols-3 gap-4">
