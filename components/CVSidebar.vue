@@ -35,6 +35,7 @@
           <li class="text-sm">REST</li>
           <li class="text-sm">Java</li>
           <li class="text-sm">CI/CD</li>
+          <li class="text-sm">DataDog</li>
         </ul>
       </div>
     </div>

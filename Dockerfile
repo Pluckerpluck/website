@@ -1,5 +1,4 @@
-ARG NODE_VERSION=20.18.0
-ARG PORT=80
+ARG NODE_VERSION=23
 
 FROM node:${NODE_VERSION}-slim as base
 
@@ -8,15 +7,16 @@ WORKDIR /src
 # Build
 FROM base as build
 
-COPY --link package.json package-lock.json ./
+COPY package.json package-lock.json ./
 RUN npm install
 
-COPY --link . .
+COPY . .
 
 RUN npm run build
 
 # Run
 FROM base
+ARG PORT=80
 
 EXPOSE $PORT
 ENV PORT=$PORT
